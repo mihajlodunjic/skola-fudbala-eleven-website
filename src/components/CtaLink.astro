@@ -1,0 +1,22 @@
+---
+interface Props {
+  href: string;
+  variant?: "gold" | "ink" | "paper" | "line";
+  external?: boolean;
+  ariaLabel?: string;
+  class?: string;
+}
+
+const { href, variant = "gold", external = false, ariaLabel, class: className } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={["cta-link", `cta-link--${variant}`, className]}
+  aria-label={ariaLabel}
+  target={external ? "_blank" : undefined}
+  rel={external ? "noopener noreferrer" : undefined}
+>
+  <span><slot /></span>
+  {external && <span class="sr-only">Otvara se u novoj kartici</span>}
+</a>

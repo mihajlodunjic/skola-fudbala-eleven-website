@@ -1,0 +1,46 @@
+---
+interface ContactItem {
+  label: string;
+  value: string;
+  href: string;
+  action: string;
+  ariaLabel?: string;
+  external?: boolean;
+}
+
+interface Props {
+  items: ContactItem[];
+  heading?: string;
+}
+
+const { items, heading } = Astro.props;
+---
+
+<dl class="contact-record" aria-label={heading}>
+  {items.map((item) => (
+    <div class="contact-record__item">
+      <dt>{item.label}</dt>
+      <dd>
+        <a
+          href={item.href}
+          aria-label={item.ariaLabel}
+          target={item.external ? "_blank" : undefined}
+          rel={item.external ? "noopener noreferrer" : undefined}
+        >
+          {item.value}
+          {item.external && <span class="sr-only">Otvara se u novoj kartici</span>}
+        </a>
+      </dd>
+      <a
+        class="contact-record__action"
+        href={item.href}
+        aria-label={item.ariaLabel}
+        target={item.external ? "_blank" : undefined}
+        rel={item.external ? "noopener noreferrer" : undefined}
+      >
+        {item.action}
+        {item.external && <span class="sr-only">Otvara se u novoj kartici</span>}
+      </a>
+    </div>
+  ))}
+</dl>

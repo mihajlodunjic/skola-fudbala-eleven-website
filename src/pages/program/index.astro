@@ -1,0 +1,106 @@
+---
+import Breadcrumbs from "@components/Breadcrumbs.astro";
+import CtaLink from "@components/CtaLink.astro";
+import FieldSeparator from "@components/FieldSeparator.astro";
+import PageHero from "@components/PageHero.astro";
+import SectionLabel from "@components/SectionLabel.astro";
+import { business, externalLabels } from "@data/business";
+import { copy } from "@data/copy";
+import { programPillars } from "@data/program";
+import { seo } from "@data/seo";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { breadcrumbJsonLd } from "@utils/structured-data";
+
+const crumbs = [
+  { label: "Početna", href: "/" },
+  { label: "Program", href: "/program/" }
+];
+---
+
+<BaseLayout seo={seo.program} structuredData={breadcrumbJsonLd(crumbs)}>
+  <Breadcrumbs items={crumbs} />
+  <PageHero
+    eyebrow={copy.program.hero.eyebrow}
+    title={copy.program.hero.h1}
+    intro={copy.program.hero.intro}
+    primary={{ label: copy.program.hero.primaryCta, href: business.phoneHref, ariaLabel: externalLabels.phone }}
+    secondary={{ label: copy.program.hero.secondaryCta, href: "/lokacija-i-kontakt/" }}
+  />
+
+  <section class="program-age section section-paper" data-reveal>
+    <div class="container layout-grid">
+      <div class="section-rail">
+        <SectionLabel label={copy.program.age.label} />
+        <FieldSeparator />
+      </div>
+      <div class="program-age__main">
+        <h2>{copy.program.age.h2}</h2>
+        <p class="lead">{copy.program.age.main}</p>
+      </div>
+      <aside class="program-age__aside">
+        <p>{copy.program.age.side}</p>
+        <CtaLink href={business.phoneHref} variant="ink" ariaLabel={externalLabels.phone}>{copy.program.age.cta}</CtaLink>
+      </aside>
+    </div>
+  </section>
+
+  <section class="training-section section section-muted" data-reveal>
+    <div class="container layout-grid">
+      <div class="training-section__intro">
+        <SectionLabel label={copy.program.content.label} />
+        <h2>{copy.program.content.h2}</h2>
+      </div>
+      <ol class="training-rows">
+        {programPillars.map((item, index) => (
+          <li class="training-row">
+            <span class="training-row__number">{String(index + 1).padStart(2, "0")}</span>
+            <div>
+              <h3>{item.name}</h3>
+              <p>{item.description}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="field-story section section-paper" data-reveal>
+    <div class="container layout-grid">
+      <div class="field-story__graphic field-story__graphic--dense" aria-hidden="true">
+        <FieldSeparator />
+        <div class="field-words">
+          <span>Vežba</span>
+          <span>Igra</span>
+          <span>Gol</span>
+        </div>
+      </div>
+      <div class="field-story__copy">
+        <SectionLabel label={copy.program.field.label} />
+        <h2>{copy.program.field.h2}</h2>
+        <p class="lead">{copy.program.field.text}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="team-section section section-muted" data-reveal>
+    <div class="container layout-grid">
+      <div class="team-section__copy">
+        <SectionLabel label={copy.program.groups.label} />
+        <h2>{copy.program.groups.h2}</h2>
+        <p>{copy.program.groups.text}</p>
+      </div>
+      <div class="team-section__actions">
+        <CtaLink href={business.phoneHref} ariaLabel={externalLabels.phone}>{copy.program.groups.primaryCta}</CtaLink>
+        <CtaLink href={`mailto:${business.email}`} variant="ink" ariaLabel={externalLabels.email}>{copy.program.groups.secondaryCta}</CtaLink>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-contact section section-dark" data-reveal>
+    <div class="container final-contact__center">
+      <h2>{copy.program.finalCta.h2}</h2>
+      <p>{copy.program.finalCta.text}</p>
+      <CtaLink href={business.phoneHref} ariaLabel={externalLabels.phone}>{copy.program.finalCta.cta}</CtaLink>
+    </div>
+  </section>
+</BaseLayout>

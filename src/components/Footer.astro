@@ -1,0 +1,53 @@
+---
+import { business, externalLabels } from "@data/business";
+import { copy } from "@data/copy";
+import { navigation } from "@data/navigation";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner container">
+    <div class="footer-brand">
+      <a href="/" aria-label="Škola fudbala ELEVEN - početna">
+        <img
+          src={business.logo.src}
+          width={business.logo.width}
+          height={business.logo.height}
+          alt={business.footerLogoAlt}
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+      <p>{copy.footer.description}</p>
+      <strong>{business.slogan}</strong>
+    </div>
+
+    <nav class="footer-nav" aria-label={copy.footer.pages}>
+      <h2>{copy.footer.pages}</h2>
+      {navigation.map((item) => <a href={item.href}>{item.label}</a>)}
+    </nav>
+
+    <address class="footer-contact">
+      <h2>{copy.footer.contact}</h2>
+      <a href={business.phoneHref} aria-label={externalLabels.phone}>{business.phoneDisplay}</a>
+      <a href={`mailto:${business.email}`} aria-label={externalLabels.email}>{business.email}</a>
+      <h2>{copy.footer.field}</h2>
+      <a href={business.address.mapUrl} aria-label={externalLabels.map} target="_blank" rel="noopener noreferrer">
+        {business.address.display}
+        <span class="sr-only">{externalLabels.newTab}</span>
+      </a>
+    </address>
+
+    <div class="footer-social">
+      <h2>{copy.footer.social}</h2>
+      <a href={business.instagram.url} aria-label={externalLabels.instagram} target="_blank" rel="noopener noreferrer">
+        {business.instagram.username}
+        <span class="sr-only">{externalLabels.newTab}</span>
+      </a>
+      <a class="footer-top" href="#top">{copy.footer.backTop}</a>
+    </div>
+
+    <p class="footer-line">© {year} {business.name}.</p>
+  </div>
+</footer>

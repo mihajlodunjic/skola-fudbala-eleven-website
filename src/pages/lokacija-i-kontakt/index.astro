@@ -1,0 +1,94 @@
+---
+import Breadcrumbs from "@components/Breadcrumbs.astro";
+import ContactRecord from "@components/ContactRecord.astro";
+import CtaLink from "@components/CtaLink.astro";
+import PageHero from "@components/PageHero.astro";
+import SectionLabel from "@components/SectionLabel.astro";
+import { business, externalLabels } from "@data/business";
+import { copy } from "@data/copy";
+import { seo } from "@data/seo";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { breadcrumbJsonLd } from "@utils/structured-data";
+
+const crumbs = [
+  { label: "Početna", href: "/" },
+  { label: "Lokacija i kontakt", href: "/lokacija-i-kontakt/" }
+];
+
+const contactItems = [
+  {
+    label: copy.contact.data.labels.phone,
+    value: business.phoneDisplay,
+    href: business.phoneHref,
+    action: copy.contact.data.actions.phone,
+    ariaLabel: externalLabels.phone
+  },
+  {
+    label: copy.contact.data.labels.email,
+    value: business.email,
+    href: `mailto:${business.email}`,
+    action: copy.contact.data.actions.email,
+    ariaLabel: externalLabels.email
+  },
+  {
+    label: copy.contact.data.labels.instagram,
+    value: business.instagram.username,
+    href: business.instagram.url,
+    action: copy.contact.data.actions.instagram,
+    ariaLabel: externalLabels.instagram,
+    external: true
+  }
+];
+---
+
+<BaseLayout seo={seo.contact} structuredData={breadcrumbJsonLd(crumbs)}>
+  <Breadcrumbs items={crumbs} />
+  <PageHero
+    eyebrow={copy.contact.hero.eyebrow}
+    title={copy.contact.hero.h1}
+    intro={copy.contact.hero.intro}
+    primary={{ label: copy.contact.hero.primaryCta, href: business.address.mapUrl, ariaLabel: externalLabels.map, external: true }}
+    secondary={{ label: copy.contact.hero.secondaryCta, href: business.phoneHref, ariaLabel: externalLabels.phone }}
+    marker={copy.contact.address.marker}
+  />
+
+  <section class="location-section location-section--page section section-paper" data-reveal>
+    <div class="container layout-grid">
+      <div class="location-marker" aria-hidden="true">{copy.contact.address.marker}</div>
+      <div class="location-section__copy">
+        <SectionLabel label={copy.contact.address.label} />
+        <h2>{copy.contact.address.h2}</h2>
+        <p class="lead">{copy.contact.address.text}</p>
+        <address>{business.address.display}</address>
+        <CtaLink href={business.address.mapUrl} ariaLabel={externalLabels.map} external>{copy.contact.address.cta}</CtaLink>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-page-data section section-muted" data-reveal>
+    <div class="container layout-grid">
+      <div class="contact-page-data__intro">
+        <SectionLabel label={copy.contact.data.label} />
+        <h2>{copy.contact.data.h2}</h2>
+        <p>{copy.contact.data.text}</p>
+      </div>
+      <ContactRecord items={contactItems} heading={copy.contact.data.h2} />
+    </div>
+  </section>
+
+  <section class="questions-section section section-paper" data-reveal>
+    <div class="container layout-grid">
+      <div class="questions-section__heading">
+        <h2>{copy.contact.questions.h2}</h2>
+      </div>
+      <div class="question-list">
+        {copy.contact.questions.items.map((item) => (
+          <details>
+            <summary>{item.question}</summary>
+            <p>{item.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,20 @@
+---
+import CtaLink from "@components/CtaLink.astro";
+import { copy } from "@data/copy";
+import { seo } from "@data/seo";
+import BaseLayout from "@layouts/BaseLayout.astro";
+---
+
+<BaseLayout seo={seo.notFound}>
+  <section class="not-found section-dark">
+    <div class="not-found__inner container">
+      <p class="eyebrow">{copy.notFound.eyebrow}</p>
+      <h1>{copy.notFound.h1}</h1>
+      <p class="lead">{copy.notFound.text}</p>
+      <div class="hero-actions">
+        <CtaLink href="/">{copy.notFound.primaryCta}</CtaLink>
+        <CtaLink href="/lokacija-i-kontakt/" variant="line">{copy.notFound.secondaryCta}</CtaLink>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,76 @@
+---
+import Breadcrumbs from "@components/Breadcrumbs.astro";
+import ClubSignature from "@components/ClubSignature.astro";
+import CtaLink from "@components/CtaLink.astro";
+import PageHero from "@components/PageHero.astro";
+import SectionLabel from "@components/SectionLabel.astro";
+import { business, externalLabels } from "@data/business";
+import { copy } from "@data/copy";
+import { seo } from "@data/seo";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { breadcrumbJsonLd } from "@utils/structured-data";
+
+const crumbs = [
+  { label: "Početna", href: "/" },
+  { label: "O školi", href: "/o-skoli/" }
+];
+---
+
+<BaseLayout seo={seo.about} structuredData={breadcrumbJsonLd(crumbs)}>
+  <Breadcrumbs items={crumbs} />
+  <PageHero
+    eyebrow={copy.about.hero.eyebrow}
+    title={copy.about.hero.h1}
+    intro={copy.about.hero.intro}
+    primary={{ label: copy.about.hero.primaryCta, href: "/program/" }}
+    secondary={{ label: copy.about.hero.secondaryCta, href: business.phoneHref, ariaLabel: externalLabels.phone }}
+  />
+
+  <section class="about-school section section-paper" data-reveal>
+    <div class="container layout-grid">
+      <div class="section-rail">
+        <SectionLabel label={copy.about.school.label} />
+      </div>
+      <div class="about-school__copy">
+        <h2>{copy.about.school.h2}</h2>
+        <p class="lead">{copy.about.school.text}</p>
+        <CtaLink href="/lokacija-i-kontakt/" variant="ink">{copy.about.school.link}</CtaLink>
+      </div>
+      <div class="about-school__stamp" aria-hidden="true">
+        <span>ELEVEN</span>
+        <strong>161</strong>
+        <small>Novi Beograd</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="method-section section section-muted" data-reveal>
+    <div class="container layout-grid">
+      <div class="method-section__copy">
+        <SectionLabel label={copy.about.method.label} />
+        <h2>{copy.about.method.h2}</h2>
+        <p class="lead">{copy.about.method.text}</p>
+      </div>
+      <aside class="method-section__note">
+        <p>{copy.about.method.side}</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="club-pause section-dark" data-reveal>
+    <div class="club-pause__inner container">
+      <ClubSignature label={copy.about.club.label} />
+    </div>
+  </section>
+
+  <section class="final-contact section section-paper" data-reveal>
+    <div class="container final-contact__center">
+      <h2>{copy.about.contact.h2}</h2>
+      <p>{copy.about.contact.text}</p>
+      <div class="hero-actions">
+        <CtaLink href={business.phoneHref} ariaLabel={externalLabels.phone}>{copy.about.contact.primaryCta}</CtaLink>
+        <CtaLink href={`mailto:${business.email}`} variant="ink" ariaLabel={externalLabels.email}>{copy.about.contact.secondaryCta}</CtaLink>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

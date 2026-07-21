@@ -1,0 +1,41 @@
+---
+import BoardGraphic from "./BoardGraphic.astro";
+import CtaLink from "./CtaLink.astro";
+
+interface Action {
+  label: string;
+  href: string;
+  ariaLabel?: string;
+  external?: boolean;
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  primary: Action;
+  secondary: Action;
+  marker?: string;
+}
+
+const { eyebrow, title, intro, primary, secondary, marker } = Astro.props;
+---
+
+<section class="page-hero section-dark">
+  <div class="page-hero__inner container layout-grid">
+    <div class="page-hero__copy">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      <p class="lead">{intro}</p>
+      <div class="hero-actions">
+        <CtaLink href={primary.href} ariaLabel={primary.ariaLabel} external={primary.external}>{primary.label}</CtaLink>
+        <CtaLink href={secondary.href} variant="line" ariaLabel={secondary.ariaLabel} external={secondary.external}>
+          {secondary.label}
+        </CtaLink>
+      </div>
+    </div>
+    <div class="page-hero__visual">
+      <BoardGraphic marker={marker} />
+    </div>
+  </div>
+</section>

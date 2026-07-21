@@ -1,0 +1,12 @@
+---
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+const markers = Array.from({ length: 11 });
+---
+
+<div class:list={["eleven-markers", compact && "eleven-markers--compact"]} aria-hidden="true">
+  {markers.map((_, index) => <span style={`--marker-index:${index}`}></span>)}
+</div>

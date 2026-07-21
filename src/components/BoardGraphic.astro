@@ -1,0 +1,24 @@
+---
+import ElevenMarkers from "./ElevenMarkers.astro";
+
+interface Props {
+  label?: string;
+  marker?: string;
+  compact?: boolean;
+}
+
+const { label = "ELEVEN / BEOGRAD", marker, compact = false } = Astro.props;
+---
+
+<div class:list={["board-graphic", compact && "board-graphic--compact"]} aria-hidden="true">
+  <div class="board-graphic__label">{label}</div>
+  <div class="board-graphic__field">
+    <span class="board-graphic__half board-graphic__half--left"></span>
+    <span class="board-graphic__half board-graphic__half--right"></span>
+    <span class="board-graphic__circle"></span>
+    <span class="board-graphic__spot board-graphic__spot--top"></span>
+    <span class="board-graphic__spot board-graphic__spot--bottom"></span>
+  </div>
+  <ElevenMarkers compact={compact} />
+  {marker && <strong class="board-graphic__marker">{marker}</strong>}
+</div>

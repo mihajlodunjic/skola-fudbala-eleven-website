@@ -1,0 +1,55 @@
+---
+import { business } from "@data/business";
+import type { SeoEntry } from "@data/seo";
+import { buildUrl } from "@data/site";
+import Footer from "@components/Footer.astro";
+import Header from "@components/Header.astro";
+import "../styles/global.css";
+
+interface Props {
+  seo: SeoEntry;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { seo, structuredData = [] } = Astro.props;
+const canonicalUrl = buildUrl(seo.path);
+const imageUrl = buildUrl(business.ogImage.src);
+const dataItems = Array.isArray(structuredData) ? structuredData : [structuredData];
+const shouldNoindex = "noindex" in seo && seo.noindex === true;
+---
+
+<!doctype html>
+<html lang="sr-Latn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{seo.title}</title>
+    <meta name="description" content={seo.description} />
+    {shouldNoindex && <meta name="robots" content="noindex, follow" />}
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/png" href={business.logo.src} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={seo.title} />
+    <meta property="og:description" content={seo.description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={business.name} />
+    <meta property="og:locale" content="sr_RS" />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content={String(business.ogImage.width)} />
+    <meta property="og:image:height" content={String(business.ogImage.height)} />
+    <meta property="og:image:alt" content={business.ogImage.alt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={seo.title} />
+    <meta name="twitter:description" content={seo.description} />
+    <meta name="twitter:image" content={imageUrl} />
+    {dataItems.map((item) => <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />)}
+  </head>
+  <body id="top">
+    <a class="skip-link" href="#main">Pređite na glavni sadržaj</a>
+    <Header currentPath={Astro.url.pathname} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

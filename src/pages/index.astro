@@ -1,0 +1,190 @@
+---
+import BoardGraphic from "@components/BoardGraphic.astro";
+import ClubSignature from "@components/ClubSignature.astro";
+import ContactRecord from "@components/ContactRecord.astro";
+import CtaLink from "@components/CtaLink.astro";
+import ElevenMarkers from "@components/ElevenMarkers.astro";
+import FieldSeparator from "@components/FieldSeparator.astro";
+import SectionLabel from "@components/SectionLabel.astro";
+import { business, externalLabels } from "@data/business";
+import { copy } from "@data/copy";
+import { homeProgramItems, trainingIndex } from "@data/program";
+import { seo } from "@data/seo";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { organizationJsonLd } from "@utils/structured-data";
+
+const contactItems = [
+  {
+    label: copy.home.contact.labels.phone,
+    value: business.phoneDisplay,
+    href: business.phoneHref,
+    action: copy.home.contact.actions.phone,
+    ariaLabel: externalLabels.phone
+  },
+  {
+    label: copy.home.contact.labels.email,
+    value: business.email,
+    href: `mailto:${business.email}`,
+    action: copy.home.contact.actions.email,
+    ariaLabel: externalLabels.email
+  },
+  {
+    label: copy.home.contact.labels.field,
+    value: business.address.street,
+    href: business.address.mapUrl,
+    action: copy.home.contact.actions.map,
+    ariaLabel: externalLabels.map,
+    external: true
+  }
+];
+---
+
+<BaseLayout seo={seo.home} structuredData={organizationJsonLd()}>
+  <section class="home-hero section-dark">
+    <div class="home-hero__inner container layout-grid">
+      <div class="home-hero__copy">
+        <p class="eyebrow">{copy.home.hero.eyebrow}</p>
+        <h1>{copy.home.hero.h1}</h1>
+        <p class="lead">{copy.home.hero.intro}</p>
+        <div class="hero-actions">
+          <CtaLink href={business.phoneHref} ariaLabel={externalLabels.phone}>{copy.home.hero.primaryCta}</CtaLink>
+          <CtaLink href="/program/" variant="line">{copy.home.hero.secondaryCta}</CtaLink>
+        </div>
+        <p class="hero-phone">
+          <span>{business.phoneDisplay}</span>
+          <strong>{business.slogan}</strong>
+        </p>
+      </div>
+      <div class="home-hero__visual" aria-hidden="true">
+        <div class="hero-program-plate">
+          <span>{copy.home.hero.label}</span>
+          <strong>4–6</strong>
+          <small>godina</small>
+        </div>
+        <BoardGraphic />
+      </div>
+    </div>
+  </section>
+
+  <section class="program-intro section section-paper" id="program-za-najmladje" data-reveal>
+    <div class="container layout-grid">
+      <div class="section-rail">
+        <SectionLabel label={copy.home.program.label} />
+        <ElevenMarkers compact />
+      </div>
+      <div class="program-intro__copy">
+        <p class="eyebrow eyebrow--ink">{copy.home.program.eyebrow}</p>
+        <h2>{copy.home.program.h2}</h2>
+        <p class="lead">{copy.home.program.intro}</p>
+        <div class="program-intro__rows">
+          {homeProgramItems.map((item, index) => (
+            <article class="compact-row">
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+        <CtaLink href="/program/" variant="ink">{copy.home.program.cta}</CtaLink>
+      </div>
+    </div>
+  </section>
+
+  <section class="training-section section section-muted" data-reveal>
+    <div class="container layout-grid">
+      <div class="training-section__intro">
+        <SectionLabel label={copy.home.training.label} />
+        <h2>{copy.home.training.h2}</h2>
+        <p>{copy.home.training.intro}</p>
+      </div>
+      <ol class="training-rows">
+        {trainingIndex.map((item) => (
+          <li class="training-row">
+            <span class="training-row__number">{item.number}</span>
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="club-pause section-dark" data-reveal>
+    <div class="club-pause__inner container">
+      <ClubSignature label={copy.home.club.label} />
+    </div>
+  </section>
+
+  <section class="field-story section section-paper" data-reveal>
+    <div class="container layout-grid">
+      <div class="field-story__graphic" aria-hidden="true">
+        <FieldSeparator />
+        <div class="field-words">
+          <span>Dodavanje</span>
+          <span>Duel</span>
+          <span>Gol</span>
+        </div>
+      </div>
+      <div class="field-story__copy">
+        <SectionLabel label={copy.home.field.label} />
+        <h2>{copy.home.field.h2}</h2>
+        <p class="lead">{copy.home.field.text}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="team-section section section-muted" data-reveal>
+    <div class="container layout-grid">
+      <div class="team-section__copy">
+        <SectionLabel label={copy.home.team.label} />
+        <h2>{copy.home.team.h2}</h2>
+        <p>{copy.home.team.text}</p>
+      </div>
+      <div class="team-section__actions">
+        <CtaLink href={business.phoneHref} ariaLabel={externalLabels.phone}>{copy.home.team.primaryCta}</CtaLink>
+        <CtaLink href={`mailto:${business.email}`} variant="ink" ariaLabel={externalLabels.email}>{copy.home.team.secondaryCta}</CtaLink>
+        <p>{business.phoneDisplay}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="location-section section section-paper" data-reveal>
+    <div class="container layout-grid">
+      <div class="location-marker" aria-hidden="true">{copy.home.location.marker}</div>
+      <div class="location-section__copy">
+        <SectionLabel label={copy.home.location.label} />
+        <h2>{copy.home.location.h2}</h2>
+        <p class="lead">{copy.home.location.text}</p>
+        <address>{business.address.display}</address>
+        <div class="section-actions">
+          <CtaLink href={business.address.mapUrl} ariaLabel={externalLabels.map} external>{copy.home.location.primaryCta}</CtaLink>
+          <CtaLink href={business.phoneHref} variant="ink" ariaLabel={externalLabels.phone}>{copy.home.location.secondaryCta}</CtaLink>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="instagram-strip" data-reveal>
+    <div class="container instagram-strip__inner">
+      <div>
+        <h2>{copy.home.instagram.h2}</h2>
+        <p>{copy.home.instagram.text}</p>
+      </div>
+      <CtaLink href={business.instagram.url} variant="paper" ariaLabel={externalLabels.instagram} external>{copy.home.instagram.cta}</CtaLink>
+    </div>
+  </section>
+
+  <section class="final-contact section section-dark" data-reveal>
+    <div class="container layout-grid">
+      <div class="final-contact__copy">
+        <h2>{copy.home.contact.h2}</h2>
+        <p>{copy.home.contact.intro}</p>
+      </div>
+      <ContactRecord items={contactItems} heading={copy.home.contact.h2} />
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,182 @@
+---
+import { business, externalLabels } from "@data/business";
+import { copy } from "@data/copy";
+import { globalCta, globalNavigationLabel, navigation } from "@data/navigation";
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+const normalizedCurrent = currentPath.endsWith("/") ? currentPath : `${currentPath}/`;
+const isActive = (href: string) => (href === "/" ? normalizedCurrent === "/" : normalizedCurrent.startsWith(href));
+---
+
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="brand-link" href="/" aria-label="Škola fudbala ELEVEN - početna">
+      <img
+        src={business.logo.src}
+        width={business.logo.width}
+        height={business.logo.height}
+        alt={business.logo.alt}
+        decoding="async"
+        fetchpriority="high"
+      />
+      <span>
+        <strong>ELEVEN</strong>
+        <small>Novi Beograd</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label={globalNavigationLabel}>
+      {navigation.map((item) => (
+        <a href={item.href} class:list={["nav-link", isActive(item.href) && "is-active"]} aria-current={isActive(item.href) ? "page" : undefined}>
+          {item.label}
+          {isActive(item.href) && <span class="sr-only">{copy.global.currentPage}</span>}
+        </a>
+      ))}
+    </nav>
+
+    <a class="header-cta" href={globalCta.href} aria-label={externalLabels.phone}>{globalCta.label}</a>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-label={copy.global.menuOpen}
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      data-menu-toggle
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <div class="mobile-panel" id="mobile-menu" hidden data-mobile-menu>
+    <div class="mobile-panel__brand">
+      <img
+        src={business.logo.src}
+        width={business.logo.width}
+        height={business.logo.height}
+        alt={business.logo.alt}
+        decoding="async"
+      />
+      <span>ELEVEN / BEOGRAD</span>
+    </div>
+
+    <nav class="mobile-nav" aria-label={globalNavigationLabel}>
+      {navigation.map((item, index) => (
+        <a
+          href={item.href}
+          class:list={["mobile-nav__link", isActive(item.href) && "is-active"]}
+          aria-current={isActive(item.href) ? "page" : undefined}
+          style={`--nav-index:${index + 1}`}
+        >
+          <span>{String(index + 1).padStart(2, "0")}</span>
+          {item.label}
+          {isActive(item.href) && <span class="sr-only">{copy.global.currentPage}</span>}
+        </a>
+      ))}
+    </nav>
+
+    <address class="mobile-panel__contact">
+      <a href={business.phoneHref} aria-label={externalLabels.phone}>{business.phoneDisplay}</a>
+      <span>{business.address.street}</span>
+    </address>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector("[data-site-header]");
+  const button = header?.querySelector("[data-menu-toggle]");
+  const menu = header?.querySelector("[data-mobile-menu]");
+  const inertTargets = Array.from(document.querySelectorAll("main, footer"));
+  let lastFocus: Element | null = null;
+
+  const focusableSelector = [
+    "a[href]",
+    "button:not([disabled])",
+    "summary",
+    "[tabindex]:not([tabindex='-1'])"
+  ].join(",");
+
+  function getFocusable() {
+    if (!header || !menu) return [];
+    return Array.from(header.querySelectorAll(focusableSelector)).filter((element) => {
+      if (!(element instanceof HTMLElement)) return false;
+      if (element.hasAttribute("disabled")) return false;
+      if (element.closest("[hidden]")) return false;
+      return element.offsetParent !== null || element === document.activeElement;
+    });
+  }
+
+  function setPanel(open: boolean) {
+    if (!(button instanceof HTMLButtonElement) || !(menu instanceof HTMLElement)) return;
+    button.setAttribute("aria-expanded", String(open));
+    button.setAttribute("aria-label", open ? "Zatvori glavni meni" : "Otvori glavni meni");
+    button.classList.toggle("is-open", open);
+    document.body.classList.toggle("menu-open", open);
+    inertTargets.forEach((target) => {
+      if (open) {
+        target.setAttribute("inert", "");
+      } else {
+        target.removeAttribute("inert");
+      }
+    });
+    if (open) {
+      menu.hidden = false;
+      menu.dataset.open = "true";
+      lastFocus = document.activeElement;
+      const links = menu.querySelectorAll("a[href]");
+      const firstLink = links[0];
+      if (firstLink instanceof HTMLElement) firstLink.focus();
+      document.addEventListener("keydown", onKeydown);
+    } else {
+      menu.dataset.open = "false";
+      menu.hidden = true;
+      document.removeEventListener("keydown", onKeydown);
+      if (lastFocus instanceof HTMLElement) {
+        button.focus();
+      }
+      lastFocus = null;
+    }
+  }
+
+  function onKeydown(event: KeyboardEvent) {
+    if (!(button instanceof HTMLButtonElement)) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setPanel(false);
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const focusable = getFocusable();
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      if (last instanceof HTMLElement) last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      if (first instanceof HTMLElement) first.focus();
+    }
+  }
+
+  button?.addEventListener("click", () => {
+    if (!(button instanceof HTMLButtonElement)) return;
+    const open = button.getAttribute("aria-expanded") === "true";
+    setPanel(!open);
+  });
+
+  menu?.querySelectorAll("a[href]").forEach((link) => {
+    link.addEventListener("click", () => setPanel(false));
+  });
+
+  const desktopQuery = window.matchMedia("(min-width: 900px)");
+  desktopQuery.addEventListener("change", (event) => {
+    if (event.matches) setPanel(false);
+  });
+</script>
