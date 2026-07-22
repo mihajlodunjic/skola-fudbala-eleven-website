@@ -4,8 +4,8 @@ import ClubSignature from "@components/ClubSignature.astro";
 import ContactRecord from "@components/ContactRecord.astro";
 import CtaLink from "@components/CtaLink.astro";
 import ElevenMarkers from "@components/ElevenMarkers.astro";
-import FieldSeparator from "@components/FieldSeparator.astro";
 import SectionLabel from "@components/SectionLabel.astro";
+import TacticalActionBoard from "@components/TacticalActionBoard.astro";
 import { business, externalLabels } from "@data/business";
 import { copy } from "@data/copy";
 import { homeProgramItems, trainingIndex } from "@data/program";
@@ -121,19 +121,12 @@ const contactItems = [
 
   <section class="field-story section section-paper" data-reveal>
     <div class="container layout-grid">
-      <div class="field-story__graphic" aria-hidden="true">
-        <FieldSeparator />
-        <div class="field-words">
-          <span>Dodavanje</span>
-          <span>Duel</span>
-          <span>Gol</span>
-        </div>
-      </div>
       <div class="field-story__copy">
         <SectionLabel label={copy.home.field.label} />
         <h2>{copy.home.field.h2}</h2>
         <p class="lead">{copy.home.field.text}</p>
       </div>
+      <TacticalActionBoard />
     </div>
   </section>
 

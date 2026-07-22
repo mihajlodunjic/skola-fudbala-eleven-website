@@ -995,10 +995,12 @@ p {
 .club-signature strong {
   color: var(--color-white);
   font-family: var(--font-display);
-  font-size: 4.25rem;
+  font-size: clamp(2rem, 9.5vw, 4.25rem);
   font-weight: 800;
   line-height: 0.9;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .club-signature .field-separator {
@@ -1757,7 +1759,7 @@ details p {
   }
 
   .club-signature strong {
-    font-size: 3rem;
+    font-size: clamp(2rem, 9.5vw, 3rem);
   }
 
   .location-marker {
@@ -1793,7 +1795,7 @@ details p {
   }
 
   .club-signature strong {
-    font-size: 2.7rem;
+    font-size: clamp(2rem, 9.5vw, 2.35rem);
   }
 }
 

@@ -1,0 +1,592 @@
+<figure class="tactical-action-board" data-action-board aria-describedby="tactical-action-description">
+  <p id="tactical-action-description" class="sr-only">
+    Ilustracija fudbalske akcije: dodavanje, duel i završnica na gol.
+  </p>
+
+  <div class="tactical-action-board__surface">
+    <div class="tactical-action-board__topline">
+      <div class="tactical-action-board__labels" aria-hidden="true">
+        <span data-phase-label="1">01 / DODAVANJE</span>
+        <span data-phase-label="2">02 / DUEL</span>
+        <span data-phase-label="3">03 / GOL</span>
+      </div>
+      <button
+        class="tactical-action-board__toggle"
+        type="button"
+        aria-label="Pauzirajte automatsku animaciju"
+        data-action-toggle
+      >
+        <span data-toggle-icon>II</span>
+      </button>
+    </div>
+
+    <svg class="tactical-action-board__pitch" viewBox="0 0 400 300" aria-hidden="true" focusable="false">
+      <g class="pitch-lines">
+        <rect class="pitch-boundary" x="20" y="28" width="360" height="244" rx="0" />
+        <line x1="200" y1="28" x2="200" y2="272" />
+        <circle cx="200" cy="150" r="37" />
+        <circle class="pitch-dot" cx="200" cy="150" r="2.5" />
+
+        <rect x="20" y="84" width="64" height="132" />
+        <rect x="20" y="114" width="27" height="72" />
+        <rect x="316" y="84" width="64" height="132" />
+        <rect x="353" y="114" width="27" height="72" />
+
+        <path d="M 20 28 A 11 11 0 0 1 31 39" />
+        <path d="M 380 28 A 11 11 0 0 0 369 39" />
+        <path d="M 20 272 A 11 11 0 0 0 31 261" />
+        <path d="M 380 272 A 11 11 0 0 1 369 261" />
+      </g>
+
+      <g class="pitch-goals">
+        <rect x="10" y="122" width="10" height="56" />
+        <rect class="goal-right" x="380" y="122" width="10" height="56" />
+        <path class="goal-net goal-net--right" d="M 382 126 L 390 132 M 382 142 L 390 148 M 382 158 L 390 164 M 382 174 L 390 180" />
+      </g>
+
+      <g class="action-routes">
+        <path class="route route--ball route--pass" d="M 82 172 C 120 142 150 133 188 148" />
+        <path class="route route--player route--duel" d="M 188 148 C 203 132 222 122 244 118" />
+        <path class="route route--ball route--goal" d="M 244 118 C 278 101 323 108 374 142" />
+        <path class="route route--complete" d="M 82 172 C 120 142 150 133 188 148 C 203 132 222 122 244 118 C 278 101 323 108 374 142" />
+      </g>
+
+      <g class="opponents">
+        <g class="player player--opponent player--opponent-one">
+          <circle r="13" />
+        </g>
+        <g class="player player--opponent player--opponent-two">
+          <circle r="12" />
+        </g>
+      </g>
+
+      <g class="team-eleven">
+        <g class="player player--eleven player--eleven-start">
+          <circle r="14" />
+          <text y="4">7</text>
+        </g>
+        <g class="player player--eleven player--eleven-center">
+          <circle r="15" />
+          <text y="4">11</text>
+        </g>
+        <g class="player player--eleven player--eleven-forward">
+          <circle r="14" />
+          <text y="4">9</text>
+        </g>
+      </g>
+
+      <g class="ball">
+        <circle r="7" />
+        <path d="M -4 -1 L 0 -4 L 4 -1 L 2 4 L -2 4 Z" />
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="tactical-action-board__controls" aria-label="Faze fudbalske akcije">
+    <button type="button" data-action-phase="1" aria-current="step">
+      <span>01</span>
+      Dodavanje
+    </button>
+    <button type="button" data-action-phase="2">
+      <span>02</span>
+      Duel
+    </button>
+    <button type="button" data-action-phase="3">
+      <span>03</span>
+      Gol
+    </button>
+  </figcaption>
+
+  <p class="sr-only" aria-live="polite" data-action-status>Trenutna faza: 01 / DODAVANJE</p>
+</figure>
+
+<script>
+  const boards = Array.from(document.querySelectorAll<HTMLElement>("[data-action-board]"));
+
+  boards.forEach((board) => {
+    const controls = Array.from(board.querySelectorAll<HTMLButtonElement>("[data-action-phase]"));
+    const toggle = board.querySelector<HTMLButtonElement>("[data-action-toggle]");
+    const toggleIcon = board.querySelector<HTMLElement>("[data-toggle-icon]");
+    const status = board.querySelector("[data-action-status]");
+    const labels: Record<number, string> = {
+      1: "01 / DODAVANJE",
+      2: "02 / DUEL",
+      3: "03 / GOL"
+    };
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const desktop = window.matchMedia("(min-width: 768px)");
+    let phase: 1 | 2 | 3 = 1;
+    let timer = 0;
+    let userPaused = reducedMotion.matches || !desktop.matches;
+    let inViewport = true;
+
+    function clearTimer() {
+      if (timer) {
+        window.clearTimeout(timer);
+        timer = 0;
+      }
+    }
+
+    function setToggleState() {
+      if (!(toggle instanceof HTMLButtonElement)) return;
+      const paused = userPaused || reducedMotion.matches || !desktop.matches;
+      toggle.setAttribute(
+        "aria-label",
+        paused ? "Pokrenite automatsku animaciju" : "Pauzirajte automatsku animaciju"
+      );
+      toggle.dataset.paused = String(paused);
+      if (toggleIcon) toggleIcon.textContent = paused ? "▶" : "II";
+    }
+
+    function scheduleNext() {
+      clearTimer();
+      if (userPaused || reducedMotion.matches || !desktop.matches || !inViewport) return;
+      timer = window.setTimeout(() => {
+        setPhase(phase === 3 ? 1 : phase + 1, false);
+      }, phase === 3 ? 1400 : 1200);
+    }
+
+    function setPhase(nextPhase: number, manual: boolean) {
+      phase = nextPhase as 1 | 2 | 3;
+      board.dataset.phase = String(phase);
+      controls.forEach((control) => {
+        const active = control.getAttribute("data-action-phase") === String(phase);
+        if (active) {
+          control.setAttribute("aria-current", "step");
+        } else {
+          control.removeAttribute("aria-current");
+        }
+      });
+      if (status) status.textContent = `Trenutna faza: ${labels[phase]}`;
+      if (manual) userPaused = true;
+      setToggleState();
+      scheduleNext();
+    }
+
+    controls.forEach((control) => {
+      control.addEventListener("click", () => {
+        const next = Number(control.getAttribute("data-action-phase"));
+        if (next >= 1 && next <= 3) setPhase(next, true);
+      });
+    });
+
+    toggle?.addEventListener("click", () => {
+      userPaused = !userPaused;
+      setToggleState();
+      scheduleNext();
+    });
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inViewport = Boolean(entry?.isIntersecting);
+        scheduleNext();
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(board);
+
+    reducedMotion.addEventListener("change", () => {
+      userPaused = reducedMotion.matches || !desktop.matches;
+      setToggleState();
+      scheduleNext();
+    });
+
+    desktop.addEventListener("change", () => {
+      userPaused = reducedMotion.matches || !desktop.matches;
+      setToggleState();
+      scheduleNext();
+    });
+
+    setPhase(1, false);
+  });
+</script>
+
+<style>
+  .tactical-action-board {
+    --phase-gold: var(--color-gold);
+    --field-bg: #d8d0b9;
+    --field-line: var(--color-ink);
+    --ball-x: 82px;
+    --ball-y: 172px;
+    grid-column: 1 / -1;
+    align-self: center;
+    display: grid;
+    gap: 12px;
+    margin: 30px 0 0;
+    min-width: 0;
+  }
+
+  .tactical-action-board__surface {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--color-ink);
+    border-radius: 6px;
+    background: var(--field-bg);
+  }
+
+  .tactical-action-board__surface::after {
+    position: absolute;
+    right: -36px;
+    bottom: 20px;
+    width: 148px;
+    height: 28px;
+    background: var(--phase-gold);
+    content: "";
+    transform: rotate(-12deg);
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  }
+
+  .tactical-action-board__topline {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    z-index: 3;
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 12px;
+    pointer-events: none;
+  }
+
+  .tactical-action-board__labels {
+    position: relative;
+    min-width: min(230px, calc(100% - 54px));
+    min-height: 34px;
+  }
+
+  .tactical-action-board__labels span {
+    position: absolute;
+    inset: 0 auto auto 0;
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 8px 12px;
+    border: 1px solid var(--color-ink);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 260ms ease, transform 260ms ease;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+  }
+
+  .tactical-action-board[data-phase="1"] [data-phase-label="1"],
+  .tactical-action-board[data-phase="2"] [data-phase-label="2"],
+  .tactical-action-board[data-phase="3"] [data-phase-label="3"] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .tactical-action-board__toggle {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--color-ink);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    pointer-events: auto;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+  }
+
+  .tactical-action-board__toggle[data-paused="false"] {
+    background: var(--phase-gold);
+  }
+
+  .tactical-action-board__pitch {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
+
+  .pitch-lines,
+  .pitch-goals {
+    fill: none;
+    stroke: var(--field-line);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.2;
+  }
+
+  .pitch-dot {
+    fill: var(--field-line);
+    stroke: none;
+  }
+
+  .pitch-goals rect {
+    fill: rgba(255, 253, 247, 0.4);
+  }
+
+  .goal-net {
+    stroke-width: 1.3;
+    opacity: 0.72;
+  }
+
+  .route {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.16;
+  }
+
+  .route--ball {
+    stroke: var(--phase-gold);
+    stroke-width: 4;
+  }
+
+  .route--player {
+    stroke: var(--color-ink);
+    stroke-dasharray: 7 7;
+    stroke-width: 2.5;
+  }
+
+  .route--complete {
+    stroke: var(--phase-gold);
+    stroke-width: 2;
+    stroke-dasharray: 5 7;
+    opacity: 0;
+  }
+
+  .tactical-action-board[data-phase="1"] .route--pass,
+  .tactical-action-board[data-phase="2"] .route--duel,
+  .tactical-action-board[data-phase="3"] .route--goal {
+    opacity: 1;
+    stroke-dasharray: 240;
+    stroke-dashoffset: 0;
+    animation: draw-route 760ms ease both;
+  }
+
+  .tactical-action-board[data-phase="2"] .route--pass,
+  .tactical-action-board[data-phase="3"] .route--pass,
+  .tactical-action-board[data-phase="3"] .route--duel {
+    opacity: 0.44;
+  }
+
+  .player {
+    transform-box: view-box;
+    transition: transform 620ms ease;
+  }
+
+  .player circle {
+    transition: fill 220ms ease, stroke 220ms ease, stroke-width 220ms ease;
+  }
+
+  .player text {
+    fill: var(--phase-gold);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+
+  .player--eleven circle {
+    fill: var(--color-ink);
+    stroke: var(--color-ink);
+    stroke-width: 2;
+  }
+
+  .player--opponent circle {
+    fill: var(--color-paper);
+    stroke: var(--color-ink);
+    stroke-width: 2;
+  }
+
+  .player--eleven-start {
+    transform: translate(82px, 172px);
+  }
+
+  .player--eleven-center {
+    transform: translate(188px, 148px);
+  }
+
+  .player--eleven-forward {
+    transform: translate(316px, 105px);
+  }
+
+  .player--opponent-one {
+    transform: translate(229px, 144px);
+  }
+
+  .player--opponent-two {
+    transform: translate(323px, 179px);
+  }
+
+  .tactical-action-board[data-phase="1"] .player--eleven-start circle,
+  .tactical-action-board[data-phase="1"] .player--eleven-center circle,
+  .tactical-action-board[data-phase="2"] .player--eleven-center circle,
+  .tactical-action-board[data-phase="2"] .player--opponent-one circle,
+  .tactical-action-board[data-phase="3"] .player--eleven-center circle,
+  .tactical-action-board[data-phase="3"] .goal-right {
+    stroke: var(--phase-gold);
+    stroke-width: 4;
+  }
+
+  .tactical-action-board[data-phase="2"] .player--eleven-center,
+  .tactical-action-board[data-phase="3"] .player--eleven-center {
+    transform: translate(244px, 118px);
+  }
+
+  .tactical-action-board[data-phase="2"] .player--opponent-one {
+    transform: translate(218px, 150px);
+  }
+
+  .tactical-action-board[data-phase="3"] .goal-net--right {
+    stroke: var(--phase-gold);
+    stroke-width: 2.6;
+  }
+
+  .ball {
+    transform: translate(var(--ball-x), var(--ball-y));
+    transition: transform 720ms ease;
+  }
+
+  .ball circle {
+    fill: var(--color-white);
+    stroke: var(--color-ink);
+    stroke-width: 2.2;
+  }
+
+  .ball path {
+    fill: none;
+    stroke: var(--color-ink);
+    stroke-linejoin: round;
+    stroke-width: 1.4;
+  }
+
+  .tactical-action-board[data-phase="1"] {
+    --ball-x: 188px;
+    --ball-y: 148px;
+  }
+
+  .tactical-action-board[data-phase="2"] {
+    --ball-x: 244px;
+    --ball-y: 118px;
+  }
+
+  .tactical-action-board[data-phase="3"] {
+    --ball-x: 374px;
+    --ball-y: 142px;
+  }
+
+  .tactical-action-board__controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .tactical-action-board__controls button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px 8px;
+    border: 1px solid var(--color-ink);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-weight: 800;
+    line-height: 1;
+    text-align: center;
+    cursor: pointer;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+  }
+
+  .tactical-action-board__controls button span {
+    color: var(--color-gold-dark);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+  }
+
+  .tactical-action-board__controls button[aria-current="step"] {
+    background: var(--phase-gold);
+    color: var(--color-ink);
+  }
+
+  .tactical-action-board__controls button[aria-current="step"] span {
+    color: var(--color-ink);
+  }
+
+  @media (min-width: 768px) {
+    .tactical-action-board {
+      grid-column: 1 / 5;
+      grid-row: 1;
+      margin-top: 0;
+    }
+  }
+
+  @media (min-width: 1180px) {
+    .tactical-action-board {
+      grid-column: 1 / 6;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .tactical-action-board__surface {
+      margin-inline: -2px;
+    }
+
+    .tactical-action-board__labels span {
+      font-size: 0.88rem;
+      padding-inline: 9px;
+    }
+
+    .tactical-action-board__controls {
+      gap: 6px;
+    }
+
+    .tactical-action-board__controls button {
+      flex-direction: column;
+      gap: 2px;
+      padding-inline: 4px;
+      font-size: 0.86rem;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .tactical-action-board__toggle {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tactical-action-board__toggle {
+      display: none;
+    }
+
+    .tactical-action-board .route,
+    .tactical-action-board .route--complete {
+      opacity: 0.7;
+      animation: none;
+    }
+
+    .tactical-action-board .player,
+    .tactical-action-board .ball,
+    .tactical-action-board__labels span {
+      transition: none;
+    }
+  }
+
+  @keyframes draw-route {
+    from {
+      stroke-dashoffset: 240;
+    }
+
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>
