@@ -19,14 +19,16 @@ const contactItems = [
     value: business.phoneDisplay,
     href: business.phoneHref,
     action: copy.home.contact.actions.phone,
-    ariaLabel: externalLabels.phone
+    ariaLabel: externalLabels.phone,
+    disabled: true
   },
   {
     label: copy.home.contact.labels.email,
     value: business.email,
     href: `mailto:${business.email}`,
     action: copy.home.contact.actions.email,
-    ariaLabel: externalLabels.email
+    ariaLabel: externalLabels.email,
+    disabled: true
   },
   {
     label: copy.home.contact.labels.field,
@@ -34,7 +36,8 @@ const contactItems = [
     href: business.address.mapUrl,
     action: copy.home.contact.actions.map,
     ariaLabel: externalLabels.map,
-    external: true
+    external: true,
+    disabled: true
   }
 ];
 ---
@@ -47,8 +50,8 @@ const contactItems = [
         <h1>{copy.home.hero.h1}</h1>
         <p class="lead">{copy.home.hero.intro}</p>
         <div class="hero-actions">
-          <CtaLink href={business.phoneHref} ariaLabel={externalLabels.phone}>{copy.home.hero.primaryCta}</CtaLink>
-          <CtaLink href="/program/" variant="line">{copy.home.hero.secondaryCta}</CtaLink>
+          <CtaLink href={business.phoneHref} ariaLabel={externalLabels.phone} disabled>{copy.home.hero.primaryCta}</CtaLink>
+          <CtaLink href="/program/" variant="line" disabled>{copy.home.hero.secondaryCta}</CtaLink>
         </div>
         <p class="hero-phone">
           <span>{business.phoneDisplay}</span>
@@ -87,7 +90,7 @@ const contactItems = [
             </article>
           ))}
         </div>
-        <CtaLink href="/program/" variant="ink">{copy.home.program.cta}</CtaLink>
+        <CtaLink href="/program/" variant="ink" disabled>{copy.home.program.cta}</CtaLink>
       </div>
     </div>
   </section>
@@ -138,8 +141,8 @@ const contactItems = [
         <p>{copy.home.team.text}</p>
       </div>
       <div class="team-section__actions">
-        <CtaLink href={business.phoneHref} ariaLabel={externalLabels.phone}>{copy.home.team.primaryCta}</CtaLink>
-        <CtaLink href={`mailto:${business.email}`} variant="ink" ariaLabel={externalLabels.email}>{copy.home.team.secondaryCta}</CtaLink>
+        <CtaLink href={business.phoneHref} ariaLabel={externalLabels.phone} disabled>{copy.home.team.primaryCta}</CtaLink>
+        <CtaLink href={`mailto:${business.email}`} variant="ink" ariaLabel={externalLabels.email} disabled>{copy.home.team.secondaryCta}</CtaLink>
         <p>{business.phoneDisplay}</p>
       </div>
     </div>
@@ -154,8 +157,8 @@ const contactItems = [
         <p class="lead">{copy.home.location.text}</p>
         <address>{business.address.display}</address>
         <div class="section-actions">
-          <CtaLink href={business.address.mapUrl} ariaLabel={externalLabels.map} external>{copy.home.location.primaryCta}</CtaLink>
-          <CtaLink href={business.phoneHref} variant="ink" ariaLabel={externalLabels.phone}>{copy.home.location.secondaryCta}</CtaLink>
+          <CtaLink href={business.address.mapUrl} ariaLabel={externalLabels.map} external disabled>{copy.home.location.primaryCta}</CtaLink>
+          <CtaLink href={business.phoneHref} variant="ink" ariaLabel={externalLabels.phone} disabled>{copy.home.location.secondaryCta}</CtaLink>
         </div>
       </div>
     </div>
@@ -167,7 +170,7 @@ const contactItems = [
         <h2>{copy.home.instagram.h2}</h2>
         <p>{copy.home.instagram.text}</p>
       </div>
-      <CtaLink href={business.instagram.url} variant="paper" ariaLabel={externalLabels.instagram} external>{copy.home.instagram.cta}</CtaLink>
+      <CtaLink href={business.instagram.url} variant="paper" ariaLabel={externalLabels.instagram} external disabled>{copy.home.instagram.cta}</CtaLink>
     </div>
   </section>
 

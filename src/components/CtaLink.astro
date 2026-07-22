@@ -4,19 +4,22 @@ interface Props {
   variant?: "gold" | "ink" | "paper" | "line";
   external?: boolean;
   ariaLabel?: string;
+  disabled?: boolean;
   class?: string;
 }
 
-const { href, variant = "gold", external = false, ariaLabel, class: className } = Astro.props;
+const { href, variant = "gold", external = false, ariaLabel, disabled = false, class: className } = Astro.props;
 ---
 
 <a
-  href={href}
+  href={disabled ? undefined : href}
   class:list={["cta-link", `cta-link--${variant}`, className]}
   aria-label={ariaLabel}
-  target={external ? "_blank" : undefined}
-  rel={external ? "noopener noreferrer" : undefined}
+  aria-disabled={disabled ? "true" : undefined}
+  data-disabled-link={disabled ? "true" : undefined}
+  target={external && !disabled ? "_blank" : undefined}
+  rel={external && !disabled ? "noopener noreferrer" : undefined}
 >
   <span><slot /></span>
-  {external && <span class="sr-only">Otvara se u novoj kartici</span>}
+  {external && !disabled && <span class="sr-only">Otvara se u novoj kartici</span>}
 </a>

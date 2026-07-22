@@ -10,6 +10,10 @@ interface Props {
 const { currentPath } = Astro.props;
 const normalizedCurrent = currentPath.endsWith("/") ? currentPath : `${currentPath}/`;
 const isActive = (href: string) => (href === "/" ? normalizedCurrent === "/" : normalizedCurrent.startsWith(href));
+const navItems = navigation.map((item) => ({
+  ...item,
+  disabled: item.href !== "/"
+}));
 ---
 
 <header class="site-header" data-site-header>
@@ -30,15 +34,21 @@ const isActive = (href: string) => (href === "/" ? normalizedCurrent === "/" : n
     </a>
 
     <nav class="desktop-nav" aria-label={globalNavigationLabel}>
-      {navigation.map((item) => (
-        <a href={item.href} class:list={["nav-link", isActive(item.href) && "is-active"]} aria-current={isActive(item.href) ? "page" : undefined}>
+      {navItems.map((item) => (
+        <a
+          href={item.disabled ? undefined : item.href}
+          class:list={["nav-link", isActive(item.href) && "is-active"]}
+          aria-current={isActive(item.href) ? "page" : undefined}
+          aria-disabled={item.disabled ? "true" : undefined}
+          data-disabled-link={item.disabled ? "true" : undefined}
+        >
           {item.label}
           {isActive(item.href) && <span class="sr-only">{copy.global.currentPage}</span>}
         </a>
       ))}
     </nav>
 
-    <a class="header-cta" href={globalCta.href} aria-label={externalLabels.phone}>{globalCta.label}</a>
+    <a class="header-cta" aria-label={externalLabels.phone} aria-disabled="true" data-disabled-link="true">{globalCta.label}</a>
 
     <button
       class="menu-toggle"
@@ -67,11 +77,13 @@ const isActive = (href: string) => (href === "/" ? normalizedCurrent === "/" : n
     </div>
 
     <nav class="mobile-nav" aria-label={globalNavigationLabel}>
-      {navigation.map((item, index) => (
+      {navItems.map((item, index) => (
         <a
-          href={item.href}
+          href={item.disabled ? undefined : item.href}
           class:list={["mobile-nav__link", isActive(item.href) && "is-active"]}
           aria-current={isActive(item.href) ? "page" : undefined}
+          aria-disabled={item.disabled ? "true" : undefined}
+          data-disabled-link={item.disabled ? "true" : undefined}
           style={`--nav-index:${index + 1}`}
         >
           <span>{String(index + 1).padStart(2, "0")}</span>
@@ -82,7 +94,7 @@ const isActive = (href: string) => (href === "/" ? normalizedCurrent === "/" : n
     </nav>
 
     <address class="mobile-panel__contact">
-      <a href={business.phoneHref} aria-label={externalLabels.phone}>{business.phoneDisplay}</a>
+      <a aria-label={externalLabels.phone} aria-disabled="true" data-disabled-link="true">{business.phoneDisplay}</a>
       <span>{business.address.street}</span>
     </address>
   </div>

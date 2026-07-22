@@ -114,10 +114,9 @@
       3: "03 / GOL"
     };
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const desktop = window.matchMedia("(min-width: 768px)");
     let phase: 1 | 2 | 3 = 1;
     let timer = 0;
-    let userPaused = reducedMotion.matches || !desktop.matches;
+    let userPaused = reducedMotion.matches;
     let inViewport = true;
 
     function clearTimer() {
@@ -129,7 +128,7 @@
 
     function setToggleState() {
       if (!(toggle instanceof HTMLButtonElement)) return;
-      const paused = userPaused || reducedMotion.matches || !desktop.matches;
+      const paused = userPaused || reducedMotion.matches;
       toggle.setAttribute(
         "aria-label",
         paused ? "Pokrenite automatsku animaciju" : "Pauzirajte automatsku animaciju"
@@ -140,7 +139,7 @@
 
     function scheduleNext() {
       clearTimer();
-      if (userPaused || reducedMotion.matches || !desktop.matches || !inViewport) return;
+      if (userPaused || reducedMotion.matches || !inViewport) return;
       timer = window.setTimeout(() => {
         setPhase(phase === 3 ? 1 : phase + 1, false);
       }, phase === 3 ? 1400 : 1200);
@@ -187,13 +186,7 @@
     observer.observe(board);
 
     reducedMotion.addEventListener("change", () => {
-      userPaused = reducedMotion.matches || !desktop.matches;
-      setToggleState();
-      scheduleNext();
-    });
-
-    desktop.addEventListener("change", () => {
-      userPaused = reducedMotion.matches || !desktop.matches;
+      userPaused = reducedMotion.matches;
       setToggleState();
       scheduleNext();
     });
@@ -553,12 +546,6 @@
       gap: 2px;
       padding-inline: 4px;
       font-size: 0.86rem;
-    }
-  }
-
-  @media (max-width: 767px) {
-    .tactical-action-board__toggle {
-      display: none;
     }
   }
 

@@ -4,6 +4,10 @@ import { copy } from "@data/copy";
 import { navigation } from "@data/navigation";
 
 const year = new Date().getFullYear();
+const navItems = navigation.map((item) => ({
+  ...item,
+  disabled: item.href !== "/"
+}));
 ---
 
 <footer class="site-footer">
@@ -25,25 +29,31 @@ const year = new Date().getFullYear();
 
     <nav class="footer-nav" aria-label={copy.footer.pages}>
       <h2>{copy.footer.pages}</h2>
-      {navigation.map((item) => <a href={item.href}>{item.label}</a>)}
+      {navItems.map((item) => (
+        <a
+          href={item.disabled ? undefined : item.href}
+          aria-disabled={item.disabled ? "true" : undefined}
+          data-disabled-link={item.disabled ? "true" : undefined}
+        >
+          {item.label}
+        </a>
+      ))}
     </nav>
 
     <address class="footer-contact">
       <h2>{copy.footer.contact}</h2>
-      <a href={business.phoneHref} aria-label={externalLabels.phone}>{business.phoneDisplay}</a>
-      <a href={`mailto:${business.email}`} aria-label={externalLabels.email}>{business.email}</a>
+      <a aria-label={externalLabels.phone} aria-disabled="true" data-disabled-link="true">{business.phoneDisplay}</a>
+      <a aria-label={externalLabels.email} aria-disabled="true" data-disabled-link="true">{business.email}</a>
       <h2>{copy.footer.field}</h2>
-      <a href={business.address.mapUrl} aria-label={externalLabels.map} target="_blank" rel="noopener noreferrer">
+      <a aria-label={externalLabels.map} aria-disabled="true" data-disabled-link="true">
         {business.address.display}
-        <span class="sr-only">{externalLabels.newTab}</span>
       </a>
     </address>
 
     <div class="footer-social">
       <h2>{copy.footer.social}</h2>
-      <a href={business.instagram.url} aria-label={externalLabels.instagram} target="_blank" rel="noopener noreferrer">
+      <a aria-label={externalLabels.instagram} aria-disabled="true" data-disabled-link="true">
         {business.instagram.username}
-        <span class="sr-only">{externalLabels.newTab}</span>
       </a>
       <a class="footer-top" href="#top">{copy.footer.backTop}</a>
     </div>

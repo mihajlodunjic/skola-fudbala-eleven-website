@@ -334,6 +334,10 @@ p {
   transform: scaleX(1);
 }
 
+a[data-disabled-link] {
+  cursor: pointer;
+}
+
 .cta-link--gold {
   background: var(--color-gold);
   color: var(--color-ink);

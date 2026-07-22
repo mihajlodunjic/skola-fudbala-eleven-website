@@ -6,6 +6,7 @@ interface ContactItem {
   action: string;
   ariaLabel?: string;
   external?: boolean;
+  disabled?: boolean;
 }
 
 interface Props {
@@ -22,24 +23,28 @@ const { items, heading } = Astro.props;
       <dt>{item.label}</dt>
       <dd>
         <a
-          href={item.href}
+          href={item.disabled ? undefined : item.href}
           aria-label={item.ariaLabel}
-          target={item.external ? "_blank" : undefined}
-          rel={item.external ? "noopener noreferrer" : undefined}
+          aria-disabled={item.disabled ? "true" : undefined}
+          data-disabled-link={item.disabled ? "true" : undefined}
+          target={item.external && !item.disabled ? "_blank" : undefined}
+          rel={item.external && !item.disabled ? "noopener noreferrer" : undefined}
         >
           {item.value}
-          {item.external && <span class="sr-only">Otvara se u novoj kartici</span>}
+          {item.external && !item.disabled && <span class="sr-only">Otvara se u novoj kartici</span>}
         </a>
       </dd>
       <a
         class="contact-record__action"
-        href={item.href}
+        href={item.disabled ? undefined : item.href}
         aria-label={item.ariaLabel}
-        target={item.external ? "_blank" : undefined}
-        rel={item.external ? "noopener noreferrer" : undefined}
+        aria-disabled={item.disabled ? "true" : undefined}
+        data-disabled-link={item.disabled ? "true" : undefined}
+        target={item.external && !item.disabled ? "_blank" : undefined}
+        rel={item.external && !item.disabled ? "noopener noreferrer" : undefined}
       >
         {item.action}
-        {item.external && <span class="sr-only">Otvara se u novoj kartici</span>}
+        {item.external && !item.disabled && <span class="sr-only">Otvara se u novoj kartici</span>}
       </a>
     </div>
   ))}
